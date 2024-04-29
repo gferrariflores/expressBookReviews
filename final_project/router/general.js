@@ -20,14 +20,7 @@ public_users.post("/register", (req, res) => {
   return res.status(404).json({ message: "Unable to register user." });
 });
 
-const booksPromise = new Promise((resolve, reject) => {
-  try {
-    const books = require("./booksdb.js");
-    resolve(books);
-  } catch (error) {
-    reject(error);
-  }
-});
+
 
 // Get the book list available in the shop
 /*
@@ -38,15 +31,23 @@ public_users.get('/', function (req, res) {
 });
 */
 
-public_users.get('/', function (req, res) {
-  booksPromise
-    .then((books) => {
-      res.send(books);
-    })
-    .catch((error) => {
-      console.error('Error fetching book list:', error);
-      res.status(500).json({ message: 'Failed to fetch book list' });
-    });
+const booksPromise = new Promise((resolve, reject) => {
+  try {
+    const books = require("./booksdb.js");
+    resolve(books);
+  } catch (error) {
+    reject(error);
+  }
+});
+
+public_users.get('/', async function (req, res) {
+  try {
+    const books = await booksPromise;
+    res.send(books);
+  } catch (error) {
+    console.error('Error fetching book list:', error);
+    res.status(500).json({ message: 'Failed to fetch book list' });
+  }
 });
 
 /*
